@@ -49,9 +49,9 @@
     "quadrant": "2"
   },
   {
-    "tittle": "Тример для бритья",
-    "": "~500-3000",
-    "": "https://www.wildberries.ru/catalog/elektronika/krasota-i-zdorove/britvy-i-trimmery",
-    "": "2"
+    "title": "Тример для бритья",
+    "price": "~500-3000",
+    "link": "https://www.wildberries.ru/catalog/elektronika/krasota-i-zdorove/britvy-i-trimmery",
+    "quadrant": "2"
   }
 ]
