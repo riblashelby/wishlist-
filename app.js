@@ -2,14 +2,13 @@
  * Глобальный конфиг приложения
  */
 const MATRIX_CONFIG = {
-    dataSource: 'list.json',    // Путь к файлу с данными
-    autoRefresh: true,          // Включить автообновление без перезагрузки страницы
-    refreshInterval: 10000      // Интервал обновления в миллисекундах (10 секунд)
+    dataSource: 'list.json',
+    autoRefresh: true,
+    refreshInterval: 10000
 };
 
 /**
- * Кешируем ссылки на контейнеры квадрантов, 
- * чтобы не искать их в DOM при каждом запросе
+ * Кешируем ссылки на контейнеры квадрантов
  */
 const matrixContainers = {
     1: document.getElementById('container-q1'),
@@ -22,6 +21,9 @@ const matrixContainers = {
  * Генерация HTML-структуры для карточки желания
  */
 function createCardHTML(item) {
+    // Защита: если title пустой, не рендерим ничего
+    if (!item.title) return '';
+
     const priceHTML = item.price ? `<p class="price">${item.price}</p>` : '';
     const linkHTML = item.link 
         ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="item-link">Ссылка</a>` 
@@ -39,7 +41,7 @@ function createCardHTML(item) {
 }
 
 /**
- * Очистка всех квадрантов матрицы перед заливкой новых данных
+ * Очистка всех квадрантов матрицы
  */
 function clearMatrix() {
     Object.values(matrixContainers).forEach(container => {
@@ -60,15 +62,21 @@ async function renderWishlist() {
 
         const wishlistItems = await response.json();
         
-        // Очищаем старые карточки перед рендером новых
         clearMatrix();
 
-        // Распределяем элементы по квадрантам
         wishlistItems.forEach(item => {
-            const targetContainer = matrixContainers[item.quadrant];
+            // Защита от пустых объектов в JSON
+            if (!item || Object.keys(item).length === 0) return;
+
+            // Принудительно приводим квадрант к числу (парсим "2" в 2)
+            const quadrantNumber = parseInt(item.quadrant, 10);
+            const targetContainer = matrixContainers[quadrantNumber];
             
             if (targetContainer) {
-                targetContainer.insertAdjacentHTML('beforeend', createCardHTML(item));
+                const cardHTML = createCardHTML(item);
+                if (cardHTML) {
+                    targetContainer.insertAdjacentHTML('beforeend', cardHTML);
+                }
             } else {
                 console.warn(`Обнаружен неизвестный квадрант (${item.quadrant}) для: "${item.title}"`);
             }
@@ -76,8 +84,6 @@ async function renderWishlist() {
 
     } catch (error) {
         console.error('Критическая ошибка при инициализации матрицы:', error);
-        
-        // Выводим ошибку пользователю в первый квадрант
         if (matrixContainers[1]) {
             matrixContainers[1].innerHTML = `
                 <p style="color: var(--color-q1); font-size: 0.9rem; padding: 0.5rem;">
@@ -89,13 +95,10 @@ async function renderWishlist() {
 }
 
 /**
- * Точка входа. Ждем полной готовности DOM-дерева
+ * Точка входа
  */
 document.addEventListener('DOMContentLoaded', () => {
-    // Первый запуск при открытии страницы
     renderWishlist();
-
-    // Если в конфиге включен автоапдейт — запускаем таймер
     if (MATRIX_CONFIG.autoRefresh) {
         setInterval(renderWishlist, MATRIX_CONFIG.refreshInterval);
     }
