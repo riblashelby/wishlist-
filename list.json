@@ -47,5 +47,11 @@
     "price": "~500-1000",
     "link": "https://ru.wikipedia.org/wiki/ESP32",
     "quadrant": "2"
+  },
+  {
+    "tittle": "Тример для бритья",
+    "": "~500-3000",
+    "": "https://www.wildberries.ru/catalog/elektronika/krasota-i-zdorove/britvy-i-trimmery",
+    "": "2"
   }
 ]
